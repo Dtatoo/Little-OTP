@@ -2,7 +2,21 @@ defmodule Little.MeterToFootConverter do
   @moduledoc"""
   Converts meter to foot (boo)
   """
-  def convert(m) do
+  def convert m do
     m * 3.28084
+  end
+end
+
+defmodule Little.MeterToLengthConverter do
+  defmodule Feet do
+    def convert m do
+      m * 3.28084
+    end
+  end
+
+  defmodule Inch do
+    def convert m do
+      m * 39.3701
+    end
   end
 end
