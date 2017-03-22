@@ -1,0 +1,5 @@
+# This is where you place your openweather API key
+use Mix.Config
+
+config :little,
+  api_key: "YOUR API KEY HERE"

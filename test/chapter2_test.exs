@@ -38,8 +38,8 @@ defmodule Chapter2Test do
   describe "FeetInchYard.convert/2" do
     test "when number isn't given" do
       assert_raise FunctionClauseError, fn -> FeetInchYard.convert(:feet, "string") end
-      assert_raise FunctionClauseError, fn ->FeetInchYard.convert(:inch, "string") end
-      assert_raise FunctionClauseError, fn ->FeetInchYard.convert(:yard, "string") end
+      assert_raise FunctionClauseError, fn -> FeetInchYard.convert(:inch, "string") end
+      assert_raise FunctionClauseError, fn -> FeetInchYard.convert(:yard, "string") end
     end
 
     test "0 meter is still 0 in any other units" do
