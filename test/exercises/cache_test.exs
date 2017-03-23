@@ -44,4 +44,49 @@ defmodule CacheTest do
       assert value === @map_value
     end
   end
+
+  describe "Cache.delete/1" do
+    test "can remove stored key value pair" do
+      Cache.write @key, @value
+      Cache.delete @key
+
+      refute Cache.exist? @key
+    end
+
+    test "only remove a targeted key value" do
+      Cache.write @key, @value
+      Cache.write :other_key, @array_value
+
+      Cache.delete @key
+
+      refute Cache.exist? @key
+      assert Cache.exist? :other_key
+    end
+  end
+
+  describe "Cache.clear/0" do
+    test "will clear all cache" do
+      Cache.write :key_1, @value
+      Cache.write :key_2, @array_value
+      Cache.write :key_3, @map_value
+
+      Cache.clear @key
+
+      refute Cache.exist? :key_1
+      refute Cache.exist? :key_2
+      refute Cache.exist? :key_3
+    end
+  end
+
+  describe "Cache.exist?/1" do
+    test "returns true if exist" do
+      Cache.write @key, @value
+
+      assert Cache.exist? @key
+    end
+
+    test "returns false if exist" do
+      refute Cache.exist? @key
+    end
+  end
 end
