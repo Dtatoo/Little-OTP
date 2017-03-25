@@ -3,9 +3,6 @@ defmodule CacheTest do
 
   alias Little.Cache
 
-  @map %{}
-  @array []
-
   @key :queuetest
 
   @binary_data "Kevin"
@@ -14,10 +11,10 @@ defmodule CacheTest do
 
   setup do
     {:ok, pid} = Cache.start_link
-    {:pid, pid}
+    {:ok, %{pid: pid}}
   end
 
-  test "can spawn process" context do
+  test "can spawn process", context do
     assert Process.alive? context.pid
   end
 
@@ -25,7 +22,7 @@ defmodule CacheTest do
     test "can read state" do
       Cache.write @key, @binary_data
 
-      {:reply, value} = Cache.read @key
+      value = Cache.read @key
       assert value === @binary_data
     end
   end
@@ -33,21 +30,21 @@ defmodule CacheTest do
   describe "Cache.write/2" do
     test "can write binary" do
       Cache.write @key, @binary_data
-      {:reply, value} = Cache.read @key
+      value = Cache.read @key
 
       assert value === @binary_data
     end
 
     test "can write array" do
       Cache.write @key, @array_data
-      {:reply, value} = Cache.read @key
+      value = Cache.read @key
 
       assert value === @array_data
     end
 
     test "can write map" do
       Cache.write @key, @map_data
-      {:reply, value} = Cache.read @key
+      value = Cache.read @key
 
       assert value === @map_data
     end
@@ -74,7 +71,7 @@ defmodule CacheTest do
 
   describe "Cache.clear/0" do
     test "will clear all cache" do
-      Cache.write :key_1, @value
+      Cache.write :key_1, @binary_data
       Cache.write :key_2, @array_data
       Cache.write :key_3, @map_data
 
