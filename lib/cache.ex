@@ -29,6 +29,9 @@ defmodule Little.Cache do
     GenServer.cast @name, :clear
   end
 
+  def stop do
+    GenServer.stop @name
+  end
 
   # Server API
 
