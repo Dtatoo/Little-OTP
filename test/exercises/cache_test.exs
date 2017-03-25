@@ -94,4 +94,11 @@ defmodule CacheTest do
       refute Cache.exist? @key
     end
   end
+
+  describe "Cache.stop/0" do
+    test "process will die on when stopped", context do
+      Cache.stop
+      refute Process.alive? context.pid
+    end
+  end
 end
