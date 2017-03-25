@@ -1,61 +1,69 @@
 defmodule CacheTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Little.Cache
 
-  @key :name
-  @value "Testerson"
-  @map_value %{hello: world}
-  @array_value [1,2,3,4,5]
+  @map %{}
+  @array []
 
-  test "can spawn process" do
-    {:ok, pid}= Cache.start_link()
-    assert Process.alive? pid
+  @key :queuetest
+
+  @binary_data "Kevin"
+  @array_data [1, 2, 3]
+  @map_data %{hello: "world"}
+
+  setup do
+    {:ok, pid} = Cache.start_link
+    {:pid, pid}
+  end
+
+  test "can spawn process" context do
+    assert Process.alive? context.pid
   end
 
   describe "Cache.read/1" do
     test "can read state" do
-      Cache.write @key, @value
-      {:reply, value} = Cache.read @key
+      Cache.write @key, @binary_data
 
-      assert value === @value
+      {:reply, value} = Cache.read @key
+      assert value === @binary_data
     end
   end
 
   describe "Cache.write/2" do
-    test "can handle binary type (string)" do
-      Cache.write @key, @value
+    test "can write binary" do
+      Cache.write @key, @binary_data
       {:reply, value} = Cache.read @key
 
-      assert value === @value
+      assert value === @binary_data
     end
 
-    test "can handle array type" do
-      Cache.write @key, @array_value
+    test "can write array" do
+      Cache.write @key, @array_data
       {:reply, value} = Cache.read @key
 
-      assert value === @array_value
+      assert value === @array_data
     end
 
-    test "can handle map type" do
-      Cache.write @key, @map_value
+    test "can write map" do
+      Cache.write @key, @map_data
       {:reply, value} = Cache.read @key
 
-      assert value === @map_value
+      assert value === @map_data
     end
   end
 
   describe "Cache.delete/1" do
     test "can remove stored key value pair" do
-      Cache.write @key, @value
+      Cache.write @key, @binary_data
       Cache.delete @key
 
       refute Cache.exist? @key
     end
 
     test "only remove a targeted key value" do
-      Cache.write @key, @value
-      Cache.write :other_key, @array_value
+      Cache.write @key, @map_data
+      Cache.write :other_key, @array_data
 
       Cache.delete @key
 
@@ -67,10 +75,10 @@ defmodule CacheTest do
   describe "Cache.clear/0" do
     test "will clear all cache" do
       Cache.write :key_1, @value
-      Cache.write :key_2, @array_value
-      Cache.write :key_3, @map_value
+      Cache.write :key_2, @array_data
+      Cache.write :key_3, @map_data
 
-      Cache.clear @key
+      Cache.clear
 
       refute Cache.exist? :key_1
       refute Cache.exist? :key_2
@@ -80,12 +88,12 @@ defmodule CacheTest do
 
   describe "Cache.exist?/1" do
     test "returns true if exist" do
-      Cache.write @key, @value
+      Cache.write @key, @binary_data
 
       assert Cache.exist? @key
     end
 
-    test "returns false if exist" do
+    test "returns false if does not exist" do
       refute Cache.exist? @key
     end
   end
