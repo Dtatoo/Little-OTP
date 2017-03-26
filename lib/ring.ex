@@ -8,8 +8,13 @@ defmodule Little.Ring do
       {:link, link_to} when is_pid(link_to) ->
         Process.link link_to
         loop()
+
+      :trap_exit ->
+        Process.flag(:trap_exit, true)
+        loop()
+
       :crash ->
-        1/0
+        Process.exit(self(), :normal)
     end
   end
 
