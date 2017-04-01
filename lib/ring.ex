@@ -14,7 +14,11 @@ defmodule Little.Ring do
         loop()
 
       :crash ->
-        Process.exit(self(), :normal)
+        1/0
+
+      {:EXIT, pid, reason} ->
+        IO.puts "#{inspect self()} received {:EXIT, #{inspect pid}, #{inspect reason}}"
+        loop()
     end
   end
 
