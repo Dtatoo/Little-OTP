@@ -58,8 +58,8 @@ defmodule Little.MySupervisor do
     end
   end
 
-  def handle_call {:restart_child, old_pid}, _from, state do
-    with {:ok, child_spec} <-  Map.fetch(state, old_pid),
+  def handle_call {:restart_child, old_pid, child_spec}, _from, state do
+    with {:ok, _old_child_spec} <-  Map.fetch(state, old_pid),
          {:ok, {pid, child_spec}} <- restart_child(old_pid, child_spec) do
 
          new_state = state
