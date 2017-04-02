@@ -1,7 +1,7 @@
 defmodule Little.MySupervisor do
   use GenServer
 
-  # Client API
+  # API
   #
   def start_link child_spec_list do
     GenServer.start_link(__MODULE__, [child_spec_list])
@@ -27,8 +27,7 @@ defmodule Little.MySupervisor do
     GenServer.call supervisor, :which_children
   end
 
-
-  # Server API
+  # callbacks
 
   def init [child_spec_list] do
     Process.flag :trab_exit, true
@@ -48,7 +47,68 @@ defmodule Little.MySupervisor do
       end
   end
 
-#   # Helper function
+  def handle_call {:terminate_child, pid}, _from, state do
+    case terminate_child do
+      :ok ->
+        new_state = state |> Map.delete(pid)
+        {:reply, :ok, new_state}
+      :error ->
+        {:reply, {:error, "error terminating child"}, state}
+    end
+  end
+
+  def handle_call {:restart_child, old_pid}, _from, state do
+    with {:ok, child_spec} <-  Map.fetch state, old_pid,
+         {:ok, {:pid, child_spec}} <- restart_child old_pid, child_spec do
+
+         new_state = state
+           |> Map.delete(old_pid)
+           |> Map.put(pid, child_spec)
+         {:reply, {:ok, pid}, new_state}
+
+    else
+      :error -> {:reply, {:error, "error restaring child"}, state}
+      _ -> {:reply, :ok, state}
+    end
+  end
+
+  def handle_call :count_children, _from, state do
+    size = state |> Map.values() |> Enum.count()
+    {:reply, size, state}
+  end
+
+  def handle_call :which_children, _from, state do
+    {:reply, state, state}
+  end
+
+  def handle_info {:EXIT, from, :normal}, state do
+    new_state = state |> Map.delete(from)
+    {:noreply, new_state}
+  end
+
+  def handle_info {:EXIT, from, :killed}, state do
+    new_state = state |> Map.delete(from)
+    {:noreply, new_state}
+  end
+
+  def handle_info {:EXIT, old_pid, _reason}, state do
+    with {:ok, child_spec} <- Map.fetch state, old_pid,
+         {:ok, {pid, child_spec}} <- restart_child old_pid, child_spec do
+      new_state = state |> Map.delete(old_pid) |> Map.put(pid, child_spec)
+      {:noreply, new_state}
+    else
+      :error -> {:noreply, state}
+      _ -> {:noreply, state}
+    end
+  end
+
+  def terminat _reason, state do
+    terminate_children state
+    :ok
+  end
+
+  # helper function
+
   defp start_children [child_spec | rest] do
     case start_child child_spec do
       {:ok, pid} ->
