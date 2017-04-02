@@ -11,4 +11,8 @@ defmodule Little.MyWorker do
         loop()
     end
   end
+
+  def cause_error do
+    []
+  end
 end
