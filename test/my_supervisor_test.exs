@@ -10,7 +10,7 @@ defmodule MySupervisorTest do
 
   describe "MySupervisor.start_link/1" do
     test "can start supervisor", %{sup_pid: sup_pid} do
-      assert true === Process.alive? sup_pid
+      assert Process.alive? sup_pid
     end
   end
 
@@ -27,7 +27,20 @@ defmodule MySupervisorTest do
   end
 
   describe "MySupervisor.terminate_child" do
-    test "can terminate child process" do
+    test "can terminate child process", %{sup_pid: sup_pid} do
+      {:ok, pid} = MySupervisor.start_child(sup_pid, {MyWorker, :start_link, []})
+      assert Process.alive?(pid)
+      MySupervisor.terminate_child sup_pid, pid
+      refute Process.alive?(pid)
+    end
+  end
+
+  describe "MySupervisor.restart_child/3" do
+    test "can restart dead process with process id", %{sup_pid: sup_pid} do
+      {:ok, pid} = MySupervisor.start_child(sup_pid, {MyWorker, :start_link, []})
+      {:ok, new_pid} = MySupervisor.restart_child sup_pid, pid, {MyWorker, :start_link, []}
+      refute Process.alive?(pid)
+      assert Process.alive?(new_pid)
     end
   end
 end
