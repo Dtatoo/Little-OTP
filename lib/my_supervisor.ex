@@ -7,6 +7,27 @@ defmodule Little.MySupervisor do
     GenServer.start_link(__MODULE__, [child_spec_list])
   end
 
+  def start_child supervisor, child_spec do
+    GenServer.call supervisor, {:start_child, child_spec}
+  end
+
+  def terminate_child supervisor, pid when is_pid(pid) do
+    GenServer.call supervisor, {:terminate_child, pid}
+  end
+
+  def restart_child supervisor, pid, child_spec do
+    GenServer.call supervisor, {:restart_child, pid, child_spec}
+  end
+
+  def count_children supervisor do
+    GenServer.call supervisor, :count_children
+  end
+
+  def which_children supervisor do
+    GenServer.call supervisor, :which_children
+  end
+
+
   # Server API
 
   def init [child_spec_list] do
