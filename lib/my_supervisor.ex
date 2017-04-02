@@ -121,7 +121,7 @@ defmodule Little.MySupervisor do
   defp start_children([]), do: []
 
   defp start_child {mod, fun, args} do
-    case apply(mod, fun, args)do
+    case apply(mod, fun, args) do
       pid when is_pid(pid) ->
         Process.link pid
         {:ok, pid}
