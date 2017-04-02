@@ -11,7 +11,7 @@ defmodule Little.MySupervisor do
     GenServer.call supervisor, {:start_child, child_spec}
   end
 
-  def terminate_child supervisor, pid when is_pid(pid) do
+  def terminate_child(supervisor, pid) when is_pid(pid) do
     GenServer.call supervisor, {:terminate_child, pid}
   end
 
@@ -30,10 +30,11 @@ defmodule Little.MySupervisor do
   # callbacks
 
   def init [child_spec_list] do
-    Process.flag :trab_exit, true
+    Process.flag(:trap_exit, true)
     state = child_spec_list
       |> start_children()
       |> Enum.into(Map.new())
+
     {:ok, state}
   end
 
@@ -48,7 +49,7 @@ defmodule Little.MySupervisor do
   end
 
   def handle_call {:terminate_child, pid}, _from, state do
-    case terminate_child do
+    case terminate_child pid do
       :ok ->
         new_state = state |> Map.delete(pid)
         {:reply, :ok, new_state}
@@ -58,8 +59,8 @@ defmodule Little.MySupervisor do
   end
 
   def handle_call {:restart_child, old_pid}, _from, state do
-    with {:ok, child_spec} <-  Map.fetch state, old_pid,
-         {:ok, {:pid, child_spec}} <- restart_child old_pid, child_spec do
+    with {:ok, child_spec} <-  Map.fetch(state, old_pid),
+         {:ok, {pid, child_spec}} <- restart_child(old_pid, child_spec) do
 
          new_state = state
            |> Map.delete(old_pid)
@@ -92,8 +93,8 @@ defmodule Little.MySupervisor do
   end
 
   def handle_info {:EXIT, old_pid, _reason}, state do
-    with {:ok, child_spec} <- Map.fetch state, old_pid,
-         {:ok, {pid, child_spec}} <- restart_child old_pid, child_spec do
+    with {:ok, child_spec} <- Map.fetch(state, old_pid),
+         {:ok, {pid, child_spec}} <- restart_child(old_pid, child_spec) do
       new_state = state |> Map.delete(old_pid) |> Map.put(pid, child_spec)
       {:noreply, new_state}
     else
@@ -102,7 +103,7 @@ defmodule Little.MySupervisor do
     end
   end
 
-  def terminat _reason, state do
+  def terminate _reason, state do
     terminate_children state
     :ok
   end
@@ -117,7 +118,7 @@ defmodule Little.MySupervisor do
         :error
     end
   end
-  defp start_children [], do: []
+  defp start_children([]), do: []
 
   defp start_child {mod, fun, args} do
     case apply(mod, fun, args)do
@@ -128,4 +129,26 @@ defmodule Little.MySupervisor do
         :error
     end
   end
+
+  defp terminate_children([]), do: :ok
+  defp terminate_children child_specs do
+    child_specs |> Enum.each(fn {pid, _} -> terminate_child pid end)
+  end
+
+  defp terminate_child pid do
+    Process.exit(pid, :kill)
+    :ok
+  end
+
+  defp restart_child(pid, child_spec) when is_pid(pid) do
+    with :ok <- terminate_child(pid),
+         {:ok, new_pid} <- start_child(child_spec) do
+
+         {:ok, {new_pid, child_spec}}
+    else
+      :error ->
+        :error
+    end
+  end
+
 end
