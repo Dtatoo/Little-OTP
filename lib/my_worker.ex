@@ -12,6 +12,12 @@ defmodule Little.MyWorker do
     end
   end
 
+  def start_dead_lik do
+    spawn(fn -> return2() end)
+  end
+
+  defp
+
   def cause_error do
     []
   end
