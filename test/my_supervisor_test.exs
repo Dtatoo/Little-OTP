@@ -90,12 +90,28 @@ defmodule MySupervisorTest do
   end
 
   describe "MySupervisor.handle_info/2" do
-    test "can recover from normal crash", %{sup_pid: sup_pid} do
+    test "will remove completeled process", %{sup_pid: sup_pid} do
       {:ok, pid} = MySupervisor.start_child(sup_pid, {MyWorker, :start_link, []})
       ref = Process.monitor(pid)
       send pid, :stop
       assert_receive {:DOWN, ^ref, :process, _pid, :normal}, 500
+      assert sup_pid |> MySupervisor.count_children() === 0
+    end
+
+    test "can kill a process", %{sup_pid: sup_pid} do
+      {:ok, pid} = MySupervisor.start_child(sup_pid, {MyWorker, :start_link, []})
+      ref = Process.monitor(pid)
+      Process.exit(pid, :kill)
+      assert_receive {:DOWN, ^ref, :process, _pid, :killed}, 500
+      assert sup_pid |> MySupervisor.count_children() === 0
+    end
+
+    test "can restore from any other :EXIT failure", %{sup_pid: sup_pid} do
+      {:ok, pid} = MySupervisor.start_child(sup_pid, {MyWorker, :start_link, []})
+      ref = Process.monitor(pid)
+      Process.exit(pid, :unknown_reason)
+      assert_receive {:DOWN, ^ref, :process, _pid, :unknown_reason}, 500
+      assert sup_pid |> MySupervisor.count_children() === 1
     end
   end
-
 end
