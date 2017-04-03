@@ -93,9 +93,8 @@ defmodule MySupervisorTest do
     test "can recover from normal crash", %{sup_pid: sup_pid} do
       {:ok, pid} = MySupervisor.start_child(sup_pid, {MyWorker, :start_link, []})
       ref = Process.monitor(pid)
-      send pid, :ok
-      assert_receive {:DOWN, ^ref, _, _, :normal}, 500
-      Process.alive?(pid)|> IO.inspect()
+      send pid, :stop
+      assert_receive {:DOWN, ^ref, :process, _pid, :normal}, 500
     end
   end
 
