@@ -9,10 +9,6 @@ defmodule Pooly.Application do
     start_pool(pool_config)
   end
 
-  def start_pool(pool_config) do
-    Supervisor.start_link(pool_config)
-  end
-
   def checkout do
     Server.checkout()
   end
@@ -23,5 +19,9 @@ defmodule Pooly.Application do
 
   def status do
     Server.status()
+  end
+
+  defp start_pool(pool_config) do
+    Supervisor.start_link(pool_config)
   end
 end
