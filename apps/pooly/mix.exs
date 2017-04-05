@@ -15,8 +15,16 @@ defmodule Pooly.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [:logger],
-     mod: {Pooly.Application, []}]
+    [extra_applications: [:logger]] ++ mod()
+  end
+
+  defp mod do
+    unless(Mix.env === :test) do
+      [mod: {Pooly.Application, []}]
+    else
+      []
+    end
+
   end
 
   # Dependencies can be Hex packages:

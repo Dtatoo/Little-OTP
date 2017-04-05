@@ -15,12 +15,12 @@ defmodule Pooly.Server do
     GenServer.call(__MODULE__, :checkout)
   end
 
-  def checkin(worker_pid) do
-    GenServer.cast(__MODULE__, {:checkin, worker_pid})
-  end
-
   def status do
     GenServer.call(__MODULE__, :status)
+  end
+
+  def checkin(worker_pid) do
+    GenServer.cast(__MODULE__, {:checkin, worker_pid})
   end
 
   # Callbacks
@@ -36,7 +36,7 @@ defmodule Pooly.Server do
     {:ok, state}
   end
 
-  def handle_call(:checkout, {from_pid, _ref}, %{workers: workers, monitors: monitors} = state) do
+  def handle_call(:checkout, {from_pid, _tag}, %{workers: workers, monitors: monitors} = state) do
     case workers do
       [worker | rest] ->
         ref = Process.monitor(from_pid)
