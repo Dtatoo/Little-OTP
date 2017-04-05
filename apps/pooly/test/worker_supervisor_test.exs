@@ -2,8 +2,8 @@ defmodule WorkerSupervisorTest do
   use ExUnit.Case
   use Supervisor
 
-  alias Little.Pooly.WorkerSupervisor
-  alias Little.SampleWorker
+  alias Pooly.WorkerSupervisor
+  alias Pooly.SampleWorker
 
   describe "start_link/1" do
     test "can start a Supervisor with Process" do
