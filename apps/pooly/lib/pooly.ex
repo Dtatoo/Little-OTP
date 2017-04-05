@@ -2,7 +2,7 @@ defmodule Pooly.Application do
   use Application
 
   alias Pooly.{Server, Supervisor}
-  alias SampleWorker
+  alias Pooly.SampleWorker
 
   def start(_type, _args) do
     pool_config = [mfa: {SampleWorker, :start_link, []}, size: 5]
