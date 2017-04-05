@@ -1,4 +1,4 @@
-defmodule Little.Pooly.Server do
+defmodule Pooly.Server do
   use GenServer
   import Supervisor.Spec
 
@@ -71,7 +71,7 @@ defmodule Little.Pooly.Server do
   # Private Functions
   defp supervisor_spec(mfa) do
     opts = [restart: :temporary]
-    supervisor(Little.Pooly.WorkerSupervisor, [mfa], opts)
+    supervisor(Pooly.WorkerSupervisor, [mfa], opts)
   end
 
   defp prepopulate(size, sup), do: prepopulate(size, sup, [])

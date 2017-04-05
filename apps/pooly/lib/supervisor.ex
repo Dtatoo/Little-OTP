@@ -1,7 +1,7 @@
-defmodule Little.Pooly.Supervisor do
+defmodule Pooly.Supervisor do
   use Supervisor
 
-  alias Little.Pooly.Server
+  alias Pooly.Server
 
   def start_link(pool_config) do
     Supervisor.start_link(__MODULE__, pool_config)
