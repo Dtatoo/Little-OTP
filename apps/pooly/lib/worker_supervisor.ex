@@ -1,4 +1,4 @@
-defmodule Little.Pooly.WorkerSupervisor do
+defmodule Pooly.WorkerSupervisor do
   use Supervisor
 
   # API
