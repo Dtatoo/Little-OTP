@@ -1,26 +1,24 @@
 defmodule PoolyServerTest do
   use ExUnit.Case, async: true
 
-  alias Pooly.Server
-  alias Pooly.SampleWorker
+  alias Pooly.Application, as: App
 
   @pool_config [mfa: {SampleWorker, :start_link, []}, size: 5]
 
-  setup do
-    {:ok, pid} = Server.start_link(self(), @pool_config)
-
+  setup_all do
+    {:ok, pid}= App.start([], [])
     {:ok, pid: pid}
   end
 
-  describe "Server.start_link/2" do
+  describe "Pooly.Application.start/2" do
     test "can start a processes with configuration", %{pid: pid} do
       assert Process.alive?(pid)
     end
   end
 
-  describe "Server.checkout/0" do
+  describe "Pooly.Application.start_link/2" do
     test "can return a worker" do
-      assert Server.checkout()
+      App.checkout() |> IO.inspect()
     end
   end
 
