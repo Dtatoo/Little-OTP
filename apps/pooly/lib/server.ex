@@ -69,6 +69,11 @@ defmodule Pooly.Server do
     {:noreply, %{state | worker_sup: worker_sup, workers: workers}}
   end
 
+  # hnadle all clauses
+  def handle_info(_, state) do
+    {:noreply, state}
+  end
+
   # Private Functions
 
   defp supervisor_spec(mfa) do

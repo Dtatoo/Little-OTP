@@ -18,7 +18,8 @@ defmodule PoolyServerTest do
 
   describe "Pooly.Application.start_link/2" do
     test "can return a worker" do
-      App.checkout() |> IO.inspect()
+      worker_pid = App.checkout()
+      assert Process.alive?(worker_pid)
     end
   end
 
