@@ -6,7 +6,6 @@ defmodule PoolyTest do
     {:ok, pid} = Pooly.start([],[])
 
     on_exit(fn ->
-      Application.stop(:pooly)
       Application.unload(:pooly)
       assert_down(pid)
     end)
@@ -25,6 +24,7 @@ defmodule PoolyTest do
     test "can checkout a worker" do
       pid = Pooly.checkout()
       assert Process.alive?(pid)
+      assert Pooly.status === {4, 1}
     end
 
     test "if there is no worker to checkout it throws noproc" do
@@ -42,14 +42,28 @@ defmodule PoolyTest do
 
   end
 
-  # describe "Pooly.checkin/1" do
-  #   # test "can return worker pid" do
-  #   # end
-  # end
+  describe "Pooly.checkin/1" do
+    test "can return worker pid" do
+      worker = Pooly.checkout()
+      assert Pooly.status === {4, 1}
+
+      Pooly.checkin(worker)
+      assert Pooly.status === {5, 0}
+    end
+  end
+
+  describe "Pooly.status/0" do
+    test "can return any status" do
+      for i <- 0..5 do
+        assert Pooly.status() === {5-i, 0+i}
+        Pooly.checkout()
+      end
+    end
+  end
 
   defp assert_down(pid) do
     ref = Process.monitor(pid)
-    assert_receive {:DOWN, ^ref, _, _, _}
+    assert_receive({:DOWN, ^ref, _, _, _})
   end
 
 end
