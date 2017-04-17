@@ -7,7 +7,8 @@ defmodule PoolyServerTest do
   @pool_config [mfa: {SampleWorker, :start_link, []}, size: 5]
 
   setup do
-    {:ok, pid} = Server.start_link(self(), @pool_config)
+    {:ok, worker_pid} = SampleWorker.start_link([])
+    {:ok, pid} = Server.start_link(worker_pid, @pool_config)
 
     {:ok, pid: pid}
   end
