@@ -10,8 +10,8 @@ defmodule Pooly.Server do
     GenServer.start_link(__MODULE__, [sup, pool_config], name: __MODULE__)
   end
 
-  def checkout do
-    GenServer.call(__MODULE__, :checkout)
+  def start_link(pools_config) do
+    GenServer.start_link(__MODULE__, pools_config, name: __MODULE__)
   end
 
   def checkin(worker_pid) do
@@ -61,9 +61,10 @@ defmodule Pooly.Server do
     end
   end
 
-  def handle_call(:status, _from, %{workers: workers, monitors: monitors} = state) do
-    {:reply, {length(workers), :ets.info(monitors, :size)}, state}
-  end
+  def init(pools_config) do
+    pools_config |> Enum.each(fn(pool_config) ->
+      send(self(), {:start_pool, pool_config})
+    end)
 
 
   def handle_cast({:checkin, worker}, %{workers: workers, monitors: monitors} = state) do
@@ -77,10 +78,9 @@ defmodule Pooly.Server do
     end
   end
 
-  def handle_info(:start_worker_supervisor, state = %{sup: sup, mfa: mfa, size: size}) do
-    {:ok, worker_sup} = Supervisor.start_child(sup, supervisor_spec(mfa))
-    workers = prepopulate(size, worker_sup)
-    {:noreply, %{state | worker_sup: worker_sup, workers: workers}}
+  def handle_info({:start_pool, pool_config}, state) do
+    {:ok, _pool_sup} = Supervisor.start_child(PoolsSupervisor, supervisor_spec(pool_config))
+    {:noreply, state}
   end
 
   def handle_info({:DOWN, ref, _, _, _}, state = %{monitors: monitors, workers: workers}) do
