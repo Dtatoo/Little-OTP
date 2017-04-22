@@ -1,4 +1,4 @@
-defmodule Pooly.SampleWorker do
+defmodule SampleWorker do
   use GenServer
 
   def start_link(_) do
@@ -12,4 +12,5 @@ defmodule Pooly.SampleWorker do
   def handle_call(:stop, _from, state) do
     {:stop, :normal, :ok, state}
   end
+
 end

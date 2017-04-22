@@ -1,32 +1,25 @@
-defmodule Pooly.Application do
+defmodule Pooly do
   use Application
 
-  alias Pooly.{Server, Supervisor, SampleWorker}
-
   def start(_type, _args) do
-    pools_config =
-    [
-      [name: "Pool1", mfa: {SampleWorker, :start_link, []}, size: 2],
-      [name: "Pool2", mfa: {SampleWorker, :start_link, []}, size: 3],
-      [name: "Pool3", mfa: {SampleWorker, :start_link, []}, size: 4],
-    ]
-
-    start_pools(pools_config)
+    pool_config = [mfa: {SampleWorker, :start_link, []}, size: 5]
+    start_pool(pool_config)
   end
 
-  defp start_pools(pools_config) do
-    Supervisor.start_link(pools_config)
+  def start_pool(pool_config) do
+    Pooly.Supervisor.start_link(pool_config)
   end
 
-  def checkout(pool_name) do
-    Server.checkout(pool_name)
+  def checkout do
+    Pooly.Server.checkout
   end
 
-  def checkin(pool_name, worker_pid) do
-    Server.checkin(pool_name, worker_pid)
+  def checkin(worker_pid) do
+    Pooly.Server.checkin(worker_pid)
   end
 
-  def status(pool_name) do
-    Server.status(pool_name)
+  def status do
+    Pooly.Server.status
   end
+
 end

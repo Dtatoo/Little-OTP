@@ -20,7 +20,7 @@ defmodule Pooly.Mixfile do
 
   defp mod do
     unless(Mix.env === :test) do
-      [mod: {Pooly.Application, []}]
+      [mod: {Pooly, []}]
     else
       []
     end
