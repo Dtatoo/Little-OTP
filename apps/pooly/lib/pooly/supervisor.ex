@@ -5,14 +5,12 @@ defmodule Pooly.Supervisor do
     Supervisor.start_link(__MODULE__, pool_config)
   end
 
-  def init(pools_config) do
+  def init(pool_config) do
     children = [
-      worker(Pooly.Server, [self(), pool_config])
+      worker(Pooly.Server, [self, pool_config])
     ]
 
-    opts = [strategy: :one_for_all,
-            max_restart: 1,
-            max_time: 3600]
+    opts = [strategy: :one_for_all]
 
     supervise(children, opts)
   end
